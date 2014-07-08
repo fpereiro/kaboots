@@ -1,0 +1,23 @@
+{
+   "name": "kaboots",
+   "version": "0.0.0",
+   "description": "Kaboot standard library.",
+   "dependencies": {
+      "kaboot": "0.0.1"
+   },
+   "author": "Federico Pereiro <fpereiro@gmail.com>",
+   "contributors": ["Federico Pereiro <fpereiro@gmail.com>"],
+   "license": [{
+      "type": "Public Domain",
+      "url": "http://github.com/fpereiro/kaboots#license"
+   }],
+   "keywords": ["deploy", "install", "unix", "task"],
+   "repository" : {
+      "type": "git",
+      "url": "http://github.com/fpereiro/kaboots.git"
+   },
+   "bugs": {
+      "url": "http://github.com/fpereiro/kaboots/issues",
+      "email": "fpereiro@gmail.com"
+   }
+}

@@ -1,6 +1,6 @@
 # kaboots
 
-The *kaboot s*tandard library.
+The **kaboot s**tandard library.
 
 ## Installation
 

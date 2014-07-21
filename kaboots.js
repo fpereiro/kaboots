@@ -7,7 +7,7 @@
 
    dale.do (fs.readdirSync (kaboot.join (__dirname, 'modules')), function (v) {
       if (v.match (/.js$/)) {
-         kaboots [v.replace (/.js$/, '')] = require ('modules/' + v);
+         kaboots [v.replace (/.js$/, '')] = require ('./modules/' + v);
       }
    });
 

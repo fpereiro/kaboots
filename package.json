@@ -1,6 +1,6 @@
 {
    "name": "kaboots",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "Kaboot standard library.",
    "dependencies": {
       "astack": "2.0.4",

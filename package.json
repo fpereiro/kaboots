@@ -1,9 +1,12 @@
 {
    "name": "kaboots",
-   "version": "0.0.0",
+   "version": "0.1.0",
    "description": "Kaboot standard library.",
    "dependencies": {
-      "kaboot": "0.0.1"
+      "astack": "2.0.4",
+      "dale": "1.1.0",
+      "kaboot": "0.1.0",
+      "teishi": "1.0.12"
    },
    "author": "Federico Pereiro <fpereiro@gmail.com>",
    "contributors": ["Federico Pereiro <fpereiro@gmail.com>"],

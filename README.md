@@ -1,6 +1,14 @@
 # kaboots
 
-The kaboot standard library.
+The *kaboot s*tandard library.
+
+## Installation
+
+```npm install kaboots```
+
+Require with XXX
+
+## Modules
 
 Modules planned:
 

@@ -1,22 +1,17 @@
 # kaboots
 
-The **kaboot s**tandard library.
+The **kaboot** **s**tandard library.
 
 ## Installation
 
-```npm install kaboots```
+`npm install kaboots`
 
-## Modules
+## Intrigued? Here's your hard hat!
 
-Modules planned:
+Kaboot is undergoing a radical rewrite. While its main concepts and structures are firmly in place, large sections of core functionality are still being worked out.
 
-amazon
-github
-mysql
-unix
-erlang
-ruby
-monitoring
-web apps
-centos
-debian
+If you are at all interested by what you've seen so far, I would love to hear your suggestions and requests: my email is fpereiro@gmail.com
+
+## License
+
+Kaboot is written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.

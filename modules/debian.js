@@ -1,56 +1,38 @@
+/*
+kaboots - v0.9.0
+
+Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
+
+Please refer to readme.md to read the annotated source (but not just yet!).
+*/
+
 (function () {
 
-   // Useful shorthand.
-   var log = console.log;
-
-   var kaboot = require ('kaboot');
-
-   var a = require ('astack');
-
-   var dale = require ('dale');
+   var dale   = require ('dale');
    var teishi = require ('teishi');
+   var k      = require ('kaboot');
 
-   var debian = exports;
+   var debian = exports.debian = {};
 
-   // XXX All these functions use sudo. Is it necessary to parametrize this?
+   debian.update = ['Upgrading debian packages', [
+      ['Updating packages',  k.run, 'apt-get update'],
+      ['Upgrading packages', k.run, 'apt-get upgrade -y']
+   ]];
 
-   debian.addRepo = function (aStack, repo) {
-      if (teishi.stop ({
-         compare: repo,
-         to: 'string',
-         test: teishi.test.type,
-         label: 'repo argument passed to kaboot.debian.addRepo'
-      })) return a.return (aStack, false);
+   debian.install = function (s, packages) {
+      if (teishi.t (packages) === 'string') packages = [packages];
+      if (teishi.stop ('debian.install', ['packages', packages, 'string', 'each'])) return false;
 
-      kaboot.do (aStack, ['Add debian repo ' + repo, kaboot.run, 'sudo add-apt-repository -y ppa:' + repo]);
+      return ['Install debian packages', k.run, ['apt-get install -y', packages.join (' ')]];
    }
 
-   debian.update = function (aStack) {
-      kaboot.do (aStack, [kaboot.run, 'sudo apt-get update']);
+   debian.mapTo80 = function (s, port) {
+      if (teishi.stop ('debian.mapTo80', [
+         ['port', port, 'integer'],
+         ['port', port, {min: 1, max: 65535}]
+      ])) return false;
+
+      return [['Map port', port, 'to port 80'].join (' '), kaboot.run, ['iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports', port]];
    }
 
-   debian.upgrade = function (aStack) {
-      kaboot.do (aStack, [kaboot.run, 'sudo apt-get upgrade -y']);
-   }
-
-   debian.install = function (aStack, packages) {
-      if (teishi.stop ([{
-         compare: packages,
-         to: ['string', 'array'],
-         test: teishi.test.type,
-         multi: 'one_of',
-         label: 'packages argument passed to kaboot.debian.install'
-      }, {
-         compare: packages,
-         to: 'string',
-         test: teishi.test.type,
-         multi: 'each',
-         label: 'each element of packages argument passed to kaboot.debian.install'
-      }])) return a.return (aStack, false);
-
-      if (teishi.type (packages) === 'array') packages = packages.join (' ');
-
-      kaboot.do (aStack, [kaboot.run, ['sudo apt-get install -y', packages]]);
-   }
-
-}).call (this);
+}) ();

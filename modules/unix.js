@@ -1,122 +1,86 @@
+/*
+kaboots - v0.9.0
+
+Written by Federico Pereiro (fpereiro@gmail.com) and released into the public domain.
+
+Please refer to readme.md to read the annotated source (but not just yet!).
+*/
+
 (function () {
 
-   // Useful shorthand.
-   var log = console.log;
-
-   var kaboot = require ('kaboot');
-
-   var a = require ('astack');
-
-   var dale = require ('dale');
+   var dale   = require ('dale');
    var teishi = require ('teishi');
+   var k      = require ('kaboot');
 
-   var unix = exports;
+   var unix = exports.unix = {};
 
-   unix.scp = function (aStack, options) {
+   unix.scp = function (s, options) {
 
-      // VALIDATION
+      if (teishi.stop ('unix.scp', [
+         ['options', options, 'object'],
+         function () {return [
+            ['options keys', dale.keys (options), ['from', 'to', 'recursive', 'verbose'], 'eachOf', teishi.test.equal],
+            ['options.from', options.from, ['string', 'object'], 'oneOf'],
+            ['options.to',   options.to,   ['string', 'object'], 'oneOf'],
+            [teishi.t (options.from) === 'string', ['type of options.to when options.from is a string', options.to, 'object']],
+            [teishi.t (options.from) === 'object', ['type of options.to when options.from is an object ', options.to, 'string']],
+         ]}
+      ])) return false;
 
-      if (teishi.stop ([{
-         compare: options,
-         to: 'object',
-         test: teishi.test.type,
-         label: 'options passed to kaboot.unix.scp'
-      }, {
-         compare: dale.do (options, function (v, k) {return k}),
-         to: ['from', 'to', 'recursive'],
-         multi: 'each_of',
-         label: 'Keys within options passed to kaboot.unix.scp'
-      }, {
-         compare: [options.from, options.to],
-         to: ['string', 'object'],
-         test: teishi.test.type,
-         multi: 'each_of',
-         label: 'options.from and options.to passed to kaboot.unix.scp'
-      }, {
-         compare: options.recursive,
-         to: [true, false, undefined],
-         multi: 'one_of',
-         label: 'options.recursive passed to kaboot.unix.scp'
-      }])) return a.return (aStack, false);
+      var remote = teishi.t (options.from) === 'string' ? options.to : options.from;
 
-      var remote;
-      if (teishi.type (options.from) === 'string') remote = options.to;
-      else if (teishi.type (options.to) === 'string') {
-         remote = options.from;
-      }
-      else {
-         log ('options.from or options.to passed to kaboot.unix.scp must be a string path!');
-         return a.return (aStack, false);
-      }
+      if (teishi.stop ('unix.scp', [
+         ['remote', remote, 'object'],
+         ['remote keys', dale.keys (remote), ['host', 'key', 'path'], 'eachOf', teishi.test.equal],
+         ['remote options', remote, ['string', 'undefined'], 'eachOf']
+      ])) return false;
 
-      if (teishi.stop ([{
-         compare: remote,
-         to: 'object',
-         test: teishi.test.type,
-         label: 'remote object (either options.from or options.to) passed to kaboot.unix.scp'
-      }, {
-         compare: dale.do (remote, function (v, k) {return k}),
-         to: ['host', 'key', 'path'],
-         multi: 'each_of',
-         label: 'Keys of remote object (either options.from or options.to) passed to kaboot.unix.scp'
-      }, {
-         compare: remote,
-         to: 'string',
-         test: teishi.test.type,
-         multi: 'each',
-         label: 'remote.host, remote.key and remote.path within remote object passed to kaboot.unix.scp'
-      }])) return a.return (aStack, false);
+      dale.do (remote, function (v, k) {
+         if (v === true) remote [k] = s.vars [k];
+      });
 
-      var command = ['scp', '-v', '-o StrictHostKeyChecking=no', '-i', remote.key];
-      if (options.recursive) command.push ('-r');
-      if (teishi.type (options.from) === 'object') {
-         options.from = options.from.host + ':' + options.from.path;
-      }
-      else {
-         options.to = options.to.host + ':' + options.to.path;
-      }
+      var command = ['scp', options.verbose ? '-v' : '', '-o StrictHostKeyChecking=no', remote.key ? ['-i', remote.key] : '' , options.recursive ? '-r' : ''];
 
-      command = command.concat ([options.from, options.to]);
+      if (teishi.t (options.from) === 'object') options.from = options.from.host + ':' + options.from.path;
+      else                                      options.to   = options.to.host + ':' + options.to.path;
 
-      kaboot.do (aStack, [
-         ['Perform scp', kaboot.run, command]
-      ]);
+      return [k.run, command.concat ([options.from, options.to])];
    }
 
-   unix.tar = function (aStack, options) {
-      if (teishi.stop ({
-         compare: options,
-         to: 'object',
-         test: teishi.test.type,
-         label: 'options passed to kaboot.unix.tar'
-      })) return a.return (aStack, false);
-
-      if (teishi.stop ([{
-         compare: options.to,
-         to: 'string',
-         test: teishi.test.type,
-         label: 'options.to passed to kaboot.unix.tar'
-      }, {
-         compare: [options.compress, options.extract],
-         to: ['string', 'undefined'],
-         test: teishi.test.type,
-         multi: 'each_of',
-         label: 'options.compress, options.extract'
-      }, {
-         compare: teishi.test.type (options.compress) === teishi.test.type (options.extract),
-         to: false,
-         label: 'options.compress and options.extract can\'t be defined simultaneously.'
-      }])) return a.return (aStack, false);
+   unix.tar = function (s, options) {
+      if (teishi.stop ('unix.tar', [
+         ['options', options, 'object'],
+         function () {return [
+            ['options.to', options.to, 'string'],
+            ['options.compress', options.compress, ['string', 'undefined'], 'oneOf'],
+            [teishi.t (options.compress) === 'string', ['options.extract when options.compress is a string', options.extract, 'undefined']],
+         ]}
+      ])) return false;
 
       if (options.compress) {
-         // We create these variables so that if you pass an absolute path to tar, you will still store the files without the absolute path.
-         var root = kaboot.root (options.compress);
-         var path = kaboot.last (options.compress);
-         kaboot.do (aStack, ['Compress to tarfile', kaboot.run, root, ['tar', 'czvf', options.to, path]]);
+         var root = k.path.root (options.compress);
+         var path = k.path.last (options.compress);
+         return ['Compress to tarfile', k.run, root, ['tar', 'czvf', options.to, path]];
       }
 
-      else kaboot.do (aStack, ['Extract from tarfile', kaboot.run, ['tar', 'xzvf', options.extract, '-C', options.to]]);
-      // XXX add dvzf check
+      var command = ['Extract from tarfile', k.run, ['tar', 'xzvf', options.extract, '-C', options.to]];
+      if (options.strip) extract [extract.length - 1].push (['--strip-components', options.strip]);
+      return command;
    }
 
-}).call (this);
+   unix.vmstat = [
+      ['Running vmstat', k.run, 'vmstat'],
+      ['Processing data', function (s, last) {
+         var raw = last.stdout.replace (/\r/g, '').split ('\n');
+         var headings = raw [1].split (/ +/);
+         var data = raw [2].split (/ +/);
+         var output = {};
+         dale.do (data, function (v, k) {
+            if (v === '') return;
+            output [headings [k]] = parseInt (v);
+         });
+         k.return (s, output);
+      }]
+   ];
+
+}) ();
